@@ -29,11 +29,12 @@ public class BetService {
     }
 
     public List<Bet> listBets() {
-        return null;
+        return betRespository.findAll();
     }
 
     public Bet verifyBet(Integer betId) {
         return null;
+        
     }
 
 }

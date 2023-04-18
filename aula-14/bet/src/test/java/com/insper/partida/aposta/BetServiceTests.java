@@ -30,6 +30,15 @@ public class BetServiceTests {
 
     @Test
     void test_saveBet() {
+        Bet bet = new Bet();
+        bet.setResult(BetResult.HOME);
+        bet.setStatus(BetStatus.WON);
+
+        Mockito.when(gameService.getGame(1)).thenReturn(new Team());
+
+        Bet resp = betService.saveBet(bet);
+
+        Assertions.assertEquals(BetResult.HOME, resp.getResult());
 
     }
 

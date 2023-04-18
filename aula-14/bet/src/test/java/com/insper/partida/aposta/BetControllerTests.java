@@ -41,16 +41,66 @@ public class BetControllerTests {
 
     @Test
     void test_listBets() throws Exception {
+        Bet bet = new Bet();
+        bet.setResult(BetResult.HOME);
+        bet.setStatus(BetStatus.WON);
+
+        List<Bet> bets = new ArrayList<>();
+        bets.add(bet);
+
+        Mockito.when(betService.listBets()).thenReturn(bets);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/bet"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Bet> resp = objectMapper.readValue(result.getResponse().getContentAsString(), List.class);
+
+        Assertions.assertEquals(1, resp.size());
+        Assertions.assertEquals(BetResult.HOME, resp.get(0).getResult());
 
     }
 
     @Test
     void test_createBets() throws Exception {
+        Bet bet = new Bet();
+        bet.setResult(BetResult.HOME);
+        bet.setStatus(BetStatus.WON);
+
+        Mockito.when(betService.saveBet(bet)).thenReturn(bet);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/bet")
+                .contentType("application/json")
+                .content("{\"result\": \"HOME\", \"status\": \"WON\"}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Bet resp = objectMapper.readValue(result.getResponse().getContentAsString(), Bet.class);
+
+        Assertions.assertEquals(BetResult.HOME, resp.getResult());
+        Assertions.assertEquals(BetStatus.WON, resp.getStatus());
 
     }
 
     @Test
     void test_verifyBets() throws Exception {
+        Bet bet = new Bet();
+        bet.setResult(BetResult.HOME);
+        bet.setStatus(BetStatus.WON);
+
+        Mockito.when(betService.verifyBet(1)).thenReturn(bet);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/bet/1"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Bet resp = objectMapper.readValue(result.getResponse().getContentAsString(), Bet.class);
+
+        Assertions.assertEquals(BetResult.HOME, resp.getResult());
+        Assertions.assertEquals(BetStatus.WON, resp.getStatus());
 
     }
 
