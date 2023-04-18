@@ -2,6 +2,8 @@ package com.insper.partida.game;
 
 import com.insper.partida.equipe.Team;
 import com.insper.partida.equipe.TeamService;
+import com.insper.partida.equipe.dto.TeamReturnDTO;
+import com.insper.partida.game.dto.EditGameDTO;
 import com.insper.partida.game.dto.GameReturnDTO;
 import com.insper.partida.game.dto.SaveGameDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +24,21 @@ public class GameService {
     @Autowired
     private TeamService teamService;
 
-    public Page<Game> listGames(String home, String away, Integer attendance, Pageable pageable) {
+    public Page<GameReturnDTO> listGames(String home, String away, Integer attendance, Pageable pageable) {
         if (home != null && away != null) {
 
             Team tHome = teamService.getTeam(home);
             Team tAway = teamService.getTeam(away);
 
-            return gameRepository.findByHomeAndAway(tHome, tAway, pageable);
+            Page<Game> games = gameRepository.findByHomeAndAway(tHome, tAway, pageable);
+            return games.map(game -> GameReturnDTO.covert(game));
 
         } else if (attendance != null) {
-            return gameRepository.findByAttendanceGreaterThan(attendance, pageable);
+            Page<Game> games =  gameRepository.findByAttendanceGreaterThan(attendance, pageable);
+            return games.map(game -> GameReturnDTO.covert(game));
         }
-        return gameRepository.findAll(pageable);
+        Page<Game> games =  gameRepository.findAll(pageable);
+        return games.map(game -> GameReturnDTO.covert(game));
     }
 
     public GameReturnDTO saveGame(SaveGameDTO saveGameDTO) {
@@ -60,15 +65,16 @@ public class GameService {
 
     }
 
-    public Game editGame(String identifier, Game game) {
+    public GameReturnDTO editGame(String identifier, EditGameDTO editGameDTO) {
         Game gameBD = gameRepository.findByIdentifier(identifier);
 
-        gameBD.setScoreAway(game.getScoreAway());
-        gameBD.setScoreHome(game.getScoreHome());
-        gameBD.setAttendance(game.getAttendance());
+        gameBD.setScoreAway(editGameDTO.getScoreAway());
+        gameBD.setScoreHome(editGameDTO.getScoreHome());
+        gameBD.setAttendance(editGameDTO.getAttendance());
         gameBD.setStatus("FINISHED");
 
-        return gameRepository.save(gameBD);
+        Game game = gameRepository.save(gameBD);
+        return GameReturnDTO.covert(game);
     }
 
     public void deleteGame(String identifier) {
@@ -84,7 +90,7 @@ public class GameService {
         return gameRepository.sumScoreTeamHome(team);
     }
 
-    public Game getGame(String identifier) {
-        return gameRepository.findByIdentifier(identifier);
+    public GameReturnDTO getGame(String identifier) {
+        return GameReturnDTO.covert(gameRepository.findByIdentifier(identifier));
     }
 }
